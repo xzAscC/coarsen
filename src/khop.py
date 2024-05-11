@@ -3,6 +3,7 @@ from logger import LightLogging
 from tqdm import tqdm 
 import torch_geometric as pyg
 import matplotlib.pyplot as plt
+from ogb.linkproppred import PygLinkPropPredDataset
 
 def khop(graph_list, log,k=[2, 3]):
     log.info('Start recording...')  
@@ -10,16 +11,32 @@ def khop(graph_list, log,k=[2, 3]):
         # 节点数，边缘数，是否有节点/边属性，平均度，多跳子图大小，训练集大小，测试集大小，是否有向
         log.info('--------------------------------------------------------------------------')
         log.info('Start processing graph: %s' % graph_name)
-        graph = pyg.datasets.Planetoid(root='../dataset', name=graph_name, split="public")[0]
-        log.info(f'Number of nodes: {graph.num_nodes}')
-        log.info(f'Number of edges: {graph.num_edges}')
-        log.info(f'Is undirected: {graph.is_undirected()}')
-        log.info(f'num_edge_features: {graph.num_edge_features}')
-        log.info(f'num_node_features: {graph.num_node_features}')
-        log.info(f'avg degree: {graph.num_edges / graph.num_nodes}')
-        log.info(f'Number of train samples: {graph.test_mask.sum()}')
-        log.info(f'Number of test samples: {graph.test_mask.sum()}')
-        log.info(f'Number of val samples: {graph.val_mask.sum()}')
+        if graph_name.startswith('ogbl'):
+            dataset = PygLinkPropPredDataset(name=graph_name, root='../dataset')
+            graph = dataset[0]
+            log.info(f'graph content: {graph}')
+            log.info(f'Number of nodes: {graph.num_nodes}')
+            log.info(f'Number of edges: {graph.num_edges}')
+            log.info(f'Is undirected: {graph.is_undirected()}')
+            log.info(f'num_node_features: {graph.num_node_features}')
+            log.info(f'avg degree: {graph.num_edges / graph.num_nodes}')
+            dataset = dataset.get_idx_split()
+            log.info(f'edge_features: {dataset['train'].keys()}')
+            log.info(f'Number of train samples: {dataset['train']['edge'].shape[0]}')
+            log.info(f'Number of test samples: {dataset['train']['edge'].shape[0]}')
+            log.info(f'Number of val samples: {dataset['train']['edge'].shape[0]}')
+        else:
+            graph = pyg.datasets.Planetoid(root='../dataset', name=graph_name, split="public")[0]
+            log.info(f'graph content: {graph}')
+            log.info(f'Number of nodes: {graph.num_nodes}')
+            log.info(f'Number of edges: {graph.num_edges}')
+            log.info(f'Is undirected: {graph.is_undirected()}')
+            log.info(f'num_edge_features: {graph.num_edge_features}')
+            log.info(f'num_node_features: {graph.num_node_features}')
+            log.info(f'avg degree: {graph.num_edges / graph.num_nodes}')
+            log.info(f'Number of train samples: {graph.test_mask.sum()}')
+            log.info(f'Number of test samples: {graph.test_mask.sum()}')
+            log.info(f'Number of val samples: {graph.val_mask.sum()}')
     
         for k_num in k:
             sub_graph_size = []
@@ -52,5 +69,6 @@ def khop(graph_list, log,k=[2, 3]):
 
 if __name__ == '__main__':
     log = LightLogging(log_path='../log', log_name='khop', log_level='info')
-    graph_list = ['Cora', 'Citeseer', 'Pubmed']
+    # graph_list = ['Cora', 'Citeseer', 'Pubmed']
+    graph_list = ['ogbl-ddi', 'ogbl-collab', 'ogbl-ppa']
     khop(graph_list, log)
