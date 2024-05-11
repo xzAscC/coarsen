@@ -5,7 +5,7 @@ import torch_geometric as pyg
 import matplotlib.pyplot as plt
 from ogb.linkproppred import PygLinkPropPredDataset
 
-def khop(graph_list, log,k=[2, 3]):
+def khop(graph_list, log,k=[1, 2, 3]):
     log.info('Start recording...')  
     for graph_name in graph_list:
         # 节点数，边缘数，是否有节点/边属性，平均度，多跳子图大小，训练集大小，测试集大小，是否有向
@@ -20,11 +20,15 @@ def khop(graph_list, log,k=[2, 3]):
             log.info(f'Is undirected: {graph.is_undirected()}')
             log.info(f'num_node_features: {graph.num_node_features}')
             log.info(f'avg degree: {graph.num_edges / graph.num_nodes}')
-            dataset = dataset.get_idx_split()
-            log.info(f'edge_features: {dataset['train'].keys()}')
-            log.info(f'Number of train samples: {dataset['train']['edge'].shape[0]}')
-            log.info(f'Number of test samples: {dataset['train']['edge'].shape[0]}')
-            log.info(f'Number of val samples: {dataset['train']['edge'].shape[0]}')
+            dataset = dataset.get_edge_split()
+            keys = dataset['train'].keys()
+            train_edge_size = dataset['train']['edge'].shape[0]
+            val_edge_size = dataset['valid']['edge'].shape[0]
+            test_edge_size = dataset['test']['edge'].shape[0]   
+            log.info(f'edge_features: {keys}')
+            log.info(f'Number of train samples: {train_edge_size}')
+            log.info(f'Number of test samples: {val_edge_size}')
+            log.info(f'Number of val samples: {test_edge_size}')
         else:
             graph = pyg.datasets.Planetoid(root='../dataset', name=graph_name, split="public")[0]
             log.info(f'graph content: {graph}')
