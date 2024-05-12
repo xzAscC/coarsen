@@ -76,3 +76,4 @@ if __name__ == '__main__':
     # graph_list = ['Cora', 'Citeseer', 'Pubmed']
     graph_list = ['ogbl-ddi', 'ogbl-collab', 'ogbl-ppa']
     khop(graph_list, log)
+

@@ -1,0 +1,8 @@
+env/
+*.whl
+*.ipynb
+/dataset
+*.pyc
+*.pyo
+*.pt
+*.pdf
