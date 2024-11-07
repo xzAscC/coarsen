@@ -2,7 +2,6 @@ import logging
 import os
 import time
 
-
 def _transform_log_level(str_level):
     """
     A function that transforms a string log level to the corresponding logging level constant.
